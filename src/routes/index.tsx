@@ -50,7 +50,36 @@ export const Route = createFileRoute("/")({
           "Estudio freelance en Melo, Cerro Largo. Diseñamos sitios web profesionales, rápidos y a medida para pequeñas y medianas empresas uruguayas.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://pixel-perfect-capture-572.lovable.app/" },
       { name: "twitter:card", content: "summary_large_image" },
+    ],
+    links: [{ rel: "canonical", href: "https://pixel-perfect-capture-572.lovable.app/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "ProfessionalService",
+          "@id": "https://pixel-perfect-capture-572.lovable.app/#valcora-studio",
+          name: "Valcora Studio",
+          description:
+            "Estudio freelance de diseño y desarrollo web para pymes en Melo, Cerro Largo, Uruguay.",
+          url: "https://pixel-perfect-capture-572.lovable.app/",
+          telephone: "+59894233657",
+          areaServed: "Uruguay",
+          priceRange: "USD 199 - USD 399",
+          address: {
+            "@type": "PostalAddress",
+            addressLocality: "Melo",
+            addressRegion: "Cerro Largo",
+            addressCountry: "UY",
+          },
+          sameAs: [
+            "https://www.facebook.com/profile.php?id=61590887863016",
+            "https://wa.me/59894233657",
+          ],
+        }),
+      },
     ],
   }),
   component: Index,
