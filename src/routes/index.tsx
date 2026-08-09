@@ -771,6 +771,34 @@ function Index() {
             </form>
           </Reveal>
 
+          {waFallback && (
+            <div
+              role="alert"
+              className="mt-4 rounded-2xl border border-destructive/40 bg-card p-5 text-sm shadow-soft"
+            >
+              <p className="font-semibold text-destructive">No pudimos abrir WhatsApp automáticamente</p>
+              <p className="mt-1 text-muted-foreground">
+                Probablemente tu navegador bloqueó la ventana emergente. Tocá el botón de abajo para
+                enviarnos tu consulta, o escribinos al{" "}
+                <span className="font-semibold text-foreground">+598 94 233 657</span>.
+              </p>
+              <a
+                href={waFallback}
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => {
+                  toast.success("¡Consulta enviada! Te respondemos a la brevedad.");
+                  setWaFallback(null);
+                  formRef.current?.reset();
+                  setPlan("");
+                }}
+                className="mt-4 inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-semibold text-background transition-transform hover:-translate-y-0.5"
+              >
+                <MessageCircle className="h-4 w-4" /> Abrir WhatsApp con mi consulta
+              </a>
+            </div>
+          )}
+
           <Reveal delay={160}>
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
               <a
