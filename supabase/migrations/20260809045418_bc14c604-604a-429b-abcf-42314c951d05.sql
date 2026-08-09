@@ -1,0 +1,12 @@
+CREATE TABLE public.leads (
+  id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+  nombre TEXT NOT NULL,
+  contacto TEXT NOT NULL,
+  plan TEXT,
+  mensaje TEXT,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+);
+
+GRANT ALL ON public.leads TO service_role;
+
+ALTER TABLE public.leads ENABLE ROW LEVEL SECURITY;
