@@ -26,6 +26,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { saveLead } from "@/lib/leads.functions";
 import logo from "@/assets/valcora-logo.png.asset.json";
 import refugioVideo from "@/assets/Refugio-Verde-Final.mp4.asset.json";
 import costaVideo from "@/assets/Hotel-CostaSerena-Final.mp4.asset.json";
