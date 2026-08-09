@@ -1,12 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  CalendarCheck,
+  Camera,
   Check,
   Facebook,
   HeartHandshake,
   MapPin,
   Menu,
   MessageCircle,
+  Search,
+  ShoppingCart,
   Sparkles,
   Users,
   Zap,
@@ -95,6 +99,7 @@ const NAV = [
 ];
 
 type Project = {
+  id: string;
   name: string;
   sector: string;
   video: string;
@@ -104,6 +109,7 @@ type Project = {
 
 const PROJECTS: Project[] = [
   {
+    id: "proyecto-refugio-verde",
     name: "Refugio Verde",
     sector: "Hotel, cabañas y camping",
     video: refugioVideo.url,
@@ -116,6 +122,7 @@ const PROJECTS: Project[] = [
     ],
   },
   {
+    id: "proyecto-costa-serena",
     name: "Hotel Costa Serena",
     sector: "Hotel boutique",
     video: costaVideo.url,
@@ -128,6 +135,7 @@ const PROJECTS: Project[] = [
     ],
   },
   {
+    id: "proyecto-fuego-urbano",
     name: "Fuego Urbano",
     sector: "Delivery de comida",
     video: fuegoVideo.url,
@@ -140,6 +148,7 @@ const PROJECTS: Project[] = [
     ],
   },
   {
+    id: "proyecto-raices",
     name: "Raíces Inmobiliaria",
     sector: "Inmobiliaria — casas, apartamentos y terrenos",
     video: raicesVideo.url,
@@ -153,6 +162,7 @@ const PROJECTS: Project[] = [
     ],
   },
   {
+    id: "proyecto-vergara",
     name: "Estudio Vergara & Asociados",
     sector: "Estudio contable y jurídico",
     video: vergaraVideo.url,
@@ -165,6 +175,7 @@ const PROJECTS: Project[] = [
     ],
   },
   {
+    id: "proyecto-costa-dorada",
     name: "Costa Dorada Eventos",
     sector: "Salón de fiestas y eventos",
     video: costaDoradaVideo.url,
@@ -237,8 +248,8 @@ const PLANS: Plan[] = [
       "Mayor nivel de personalización",
       "Galería de imágenes y/o videos",
       "Integraciones adicionales",
-      "SEO avanzado",
-      "Estructura web optimizada para buscadores",
+      "Datos estructurados (Schema.org) para Google",
+      "Metadatos optimizados en cada sección",
       "Google Analytics",
       "Soporte prioritario",
     ],
@@ -255,40 +266,52 @@ const WHY = [
 
 const BENEFITS = [
   {
-    emoji: "📱",
+    icon: MessageCircle,
+    tone: "primary" as const,
     title: "Recibí consultas",
     text: "Botones de WhatsApp y formularios para que tus clientes puedan contactarte fácilmente.",
     example: "Estudio Vergara",
+    target: "proyecto-vergara",
   },
   {
-    emoji: "📅",
+    icon: CalendarCheck,
+    tone: "primary" as const,
     title: "Tomá reservas",
     text: "Ideal para hoteles, eventos, profesionales y negocios que trabajan con fechas y horarios.",
     example: "Refugio Verde",
+    target: "proyecto-refugio-verde",
   },
   {
-    emoji: "🛒",
+    icon: ShoppingCart,
+    tone: "primary" as const,
     title: "Recibí pedidos",
     text: "Mostrá tus productos o menú y recibí pedidos directamente por WhatsApp.",
     example: "Fuego Urbano",
+    target: "proyecto-fuego-urbano",
   },
   {
-    emoji: "📍",
+    icon: MapPin,
+    tone: "accent" as const,
     title: "Hacé que te encuentren",
     text: "Ubicación, horarios, Google Maps y toda la información importante de tu negocio.",
     example: "Raíces Inmobiliaria",
+    target: "proyecto-raices",
   },
   {
-    emoji: "📸",
+    icon: Camera,
+    tone: "accent" as const,
     title: "Mostrá lo que hacés",
     text: "Galerías, videos, trabajos realizados, instalaciones, productos, habitaciones, etc.",
     example: "Costa Dorada Eventos",
+    target: "proyecto-costa-dorada",
   },
   {
-    emoji: "🔎",
+    icon: Search,
+    tone: "accent" as const,
     title: "Aparecé en Google",
     text: "Estructura preparada para buscadores para que Google pueda entender mejor tu sitio.",
     example: "Hotel Costa Serena",
+    target: "proyecto-costa-serena",
   },
 ];
 
