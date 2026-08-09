@@ -325,6 +325,29 @@ function LaptopMockup({
   label: string;
   fit?: "cover" | "contain" | undefined;
 }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [active, setActive] = useState(false);
+
+  useEffect(() => {
+    const el = videoRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActive(true);
+            void el.play().catch(() => undefined);
+          } else {
+            el.pause();
+          }
+        });
+      },
+      { threshold: 0.35 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   return (
     <div className="w-full">
       <div className="rounded-t-xl border border-border bg-ink p-2 pb-0 sm:p-3 sm:pb-0">
@@ -335,12 +358,12 @@ function LaptopMockup({
         </div>
         <div className="grid aspect-[16/10] w-full place-items-center overflow-hidden rounded-t-md bg-secondary">
           <video
-            src={src}
-            autoPlay
+            ref={videoRef}
+            {...(active ? { src } : {})}
             loop
             muted
             playsInline
-            preload="metadata"
+            preload="none"
             aria-label={`Demo del sitio ${label}`}
             className={`h-full w-full ${fit === "contain" ? "object-contain" : "object-cover"}`}
           />
@@ -354,6 +377,7 @@ function LaptopMockup({
 function Index() {
   const [scrolled, setScrolled] = useState(false);
   const [plan, setPlan] = useState("");
+  const [waFallback, setWaFallback] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -499,14 +523,23 @@ function Index() {
             {BENEFITS.map((b, i) => (
               <Reveal key={b.title} delay={i * 80} className="h-full">
                 <div className="flex h-full flex-col rounded-2xl border border-border bg-card p-6 shadow-soft transition-shadow duration-300 hover:shadow-lift">
-                  <div className="grid h-11 w-11 place-items-center rounded-xl bg-secondary text-lg">
-                    <span aria-hidden>{b.emoji}</span>
+                  <div
+                    className={`grid h-11 w-11 place-items-center rounded-xl ${
+                      b.tone === "accent" ? "bg-accent/12" : "bg-primary/12"
+                    }`}
+                  >
+                    <b.icon
+                      className={`h-5 w-5 ${b.tone === "accent" ? "text-accent" : "text-primary"}`}
+                      aria-hidden="true"
+                    />
                   </div>
                   <h3 className="mt-4 text-base font-bold">{b.title}</h3>
                   <p className="mt-2 flex-1 text-sm text-muted-foreground">{b.text}</p>
                   <a
-                    href="#proyectos"
-                    className="mt-4 inline-flex w-fit items-center gap-1 text-sm font-semibold text-primary transition-colors hover:text-accent"
+                    href={`#${b.target}`}
+                    className={`mt-4 inline-flex w-fit items-center gap-1 text-sm font-semibold transition-colors hover:opacity-80 ${
+                      b.tone === "accent" ? "text-accent" : "text-primary"
+                    }`}
                   >
                     Ver ejemplo: {b.example} <ArrowUpRight className="h-3.5 w-3.5" />
                   </a>
@@ -532,7 +565,10 @@ function Index() {
           <div className="mt-12 grid items-stretch gap-6 lg:grid-cols-3">
             {PROJECTS.map((p, i) => (
               <Reveal key={p.name} delay={i * 110} className="h-full">
-                <article className="flex h-full flex-col rounded-2xl border border-border bg-card p-5 shadow-soft transition-shadow duration-300 hover:shadow-lift">
+                <article
+                  id={p.id}
+                  className="flex h-full scroll-mt-24 flex-col rounded-2xl border border-border bg-card p-5 shadow-soft transition-shadow duration-300 hover:shadow-lift sm:scroll-mt-28"
+                >
                   <span className="mb-4 inline-flex w-fit items-center rounded-full bg-secondary px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                     Proyecto conceptual — no afiliado
                   </span>
@@ -699,15 +735,28 @@ function Index() {
           <Reveal delay={100}>
             <form
               ref={formRef}
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault();
                 const formData = new FormData(e.currentTarget);
                 const nombre = String(formData.get("nombre") ?? "").trim();
                 const contacto = String(formData.get("contacto") ?? "").trim();
-                const plan = String(formData.get("plan") ?? "").trim();
+                const planSel = String(formData.get("plan") ?? "").trim();
                 const mensaje = String(formData.get("mensaje") ?? "").trim();
-                const text = `Hola, quiero más información sobre los planes de Valcora Studio.\nNombre: ${nombre}\nContacto: ${contacto}\nPlan de interés: ${plan || "No especificado"}\nMensaje: ${mensaje}`;
-                window.open(`https://wa.me/59894233657?text=${encodeURIComponent(text)}`, "_blank");
+                const text = `Hola, quiero más información sobre los planes de Valcora Studio.\nNombre: ${nombre}\nContacto: ${contacto}\nPlan de interés: ${planSel || "No especificado"}\nMensaje: ${mensaje}`;
+                const url = `https://wa.me/59894233657?text=${encodeURIComponent(text)}`;
+
+                // Respaldo: guardamos el lead antes de intentar abrir WhatsApp.
+                void saveLead({
+                  data: { nombre, contacto, plan: planSel, mensaje },
+                }).catch(() => undefined);
+
+                const win = window.open(url, "_blank");
+                if (!win || win.closed || typeof win.closed === "undefined") {
+                  setWaFallback(url);
+                  toast.error("No pudimos abrir WhatsApp. Usá el enlace que aparece abajo del formulario.");
+                  return;
+                }
+                setWaFallback(null);
                 toast.success("¡Consulta enviada! Te respondemos a la brevedad.");
                 formRef.current?.reset();
                 setPlan("");
