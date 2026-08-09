@@ -1,12 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  CalendarCheck,
+  Camera,
   Check,
   Facebook,
   HeartHandshake,
   MapPin,
   Menu,
   MessageCircle,
+  Search,
+  ShoppingCart,
   Sparkles,
   Users,
   Zap,
@@ -22,6 +26,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { saveLead } from "@/lib/leads.functions";
 import logo from "@/assets/valcora-logo.png.asset.json";
 import refugioVideo from "@/assets/Refugio-Verde-Final.mp4.asset.json";
 import costaVideo from "@/assets/Hotel-CostaSerena-Final.mp4.asset.json";
@@ -50,7 +55,36 @@ export const Route = createFileRoute("/")({
           "Estudio freelance en Melo, Cerro Largo. Diseñamos sitios web profesionales, rápidos y a medida para pequeñas y medianas empresas uruguayas.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://pixel-perfect-capture-572.lovable.app/" },
       { name: "twitter:card", content: "summary_large_image" },
+    ],
+    links: [{ rel: "canonical", href: "https://pixel-perfect-capture-572.lovable.app/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "ProfessionalService",
+          "@id": "https://pixel-perfect-capture-572.lovable.app/#valcora-studio",
+          name: "Valcora Studio",
+          description:
+            "Estudio freelance de diseño y desarrollo web para pymes en Melo, Cerro Largo, Uruguay.",
+          url: "https://pixel-perfect-capture-572.lovable.app/",
+          telephone: "+59894233657",
+          areaServed: "Uruguay",
+          priceRange: "USD 199 - USD 399",
+          address: {
+            "@type": "PostalAddress",
+            addressLocality: "Melo",
+            addressRegion: "Cerro Largo",
+            addressCountry: "UY",
+          },
+          sameAs: [
+            "https://www.facebook.com/profile.php?id=61590887863016",
+            "https://wa.me/59894233657",
+          ],
+        }),
+      },
     ],
   }),
   component: Index,
@@ -66,6 +100,7 @@ const NAV = [
 ];
 
 type Project = {
+  id: string;
   name: string;
   sector: string;
   video: string;
@@ -75,6 +110,7 @@ type Project = {
 
 const PROJECTS: Project[] = [
   {
+    id: "proyecto-refugio-verde",
     name: "Refugio Verde",
     sector: "Hotel, cabañas y camping",
     video: refugioVideo.url,
@@ -87,6 +123,7 @@ const PROJECTS: Project[] = [
     ],
   },
   {
+    id: "proyecto-costa-serena",
     name: "Hotel Costa Serena",
     sector: "Hotel boutique",
     video: costaVideo.url,
@@ -99,6 +136,7 @@ const PROJECTS: Project[] = [
     ],
   },
   {
+    id: "proyecto-fuego-urbano",
     name: "Fuego Urbano",
     sector: "Delivery de comida",
     video: fuegoVideo.url,
@@ -111,6 +149,7 @@ const PROJECTS: Project[] = [
     ],
   },
   {
+    id: "proyecto-raices",
     name: "Raíces Inmobiliaria",
     sector: "Inmobiliaria — casas, apartamentos y terrenos",
     video: raicesVideo.url,
@@ -124,6 +163,7 @@ const PROJECTS: Project[] = [
     ],
   },
   {
+    id: "proyecto-vergara",
     name: "Estudio Vergara & Asociados",
     sector: "Estudio contable y jurídico",
     video: vergaraVideo.url,
@@ -136,6 +176,7 @@ const PROJECTS: Project[] = [
     ],
   },
   {
+    id: "proyecto-costa-dorada",
     name: "Costa Dorada Eventos",
     sector: "Salón de fiestas y eventos",
     video: costaDoradaVideo.url,
@@ -208,8 +249,8 @@ const PLANS: Plan[] = [
       "Mayor nivel de personalización",
       "Galería de imágenes y/o videos",
       "Integraciones adicionales",
-      "SEO avanzado",
-      "Estructura web optimizada para buscadores",
+      "Datos estructurados (Schema.org) para Google",
+      "Metadatos optimizados en cada sección",
       "Google Analytics",
       "Soporte prioritario",
     ],
@@ -226,40 +267,52 @@ const WHY = [
 
 const BENEFITS = [
   {
-    emoji: "📱",
+    icon: MessageCircle,
+    tone: "primary" as const,
     title: "Recibí consultas",
     text: "Botones de WhatsApp y formularios para que tus clientes puedan contactarte fácilmente.",
     example: "Estudio Vergara",
+    target: "proyecto-vergara",
   },
   {
-    emoji: "📅",
+    icon: CalendarCheck,
+    tone: "primary" as const,
     title: "Tomá reservas",
     text: "Ideal para hoteles, eventos, profesionales y negocios que trabajan con fechas y horarios.",
     example: "Refugio Verde",
+    target: "proyecto-refugio-verde",
   },
   {
-    emoji: "🛒",
+    icon: ShoppingCart,
+    tone: "primary" as const,
     title: "Recibí pedidos",
     text: "Mostrá tus productos o menú y recibí pedidos directamente por WhatsApp.",
     example: "Fuego Urbano",
+    target: "proyecto-fuego-urbano",
   },
   {
-    emoji: "📍",
+    icon: MapPin,
+    tone: "accent" as const,
     title: "Hacé que te encuentren",
     text: "Ubicación, horarios, Google Maps y toda la información importante de tu negocio.",
     example: "Raíces Inmobiliaria",
+    target: "proyecto-raices",
   },
   {
-    emoji: "📸",
+    icon: Camera,
+    tone: "accent" as const,
     title: "Mostrá lo que hacés",
     text: "Galerías, videos, trabajos realizados, instalaciones, productos, habitaciones, etc.",
     example: "Costa Dorada Eventos",
+    target: "proyecto-costa-dorada",
   },
   {
-    emoji: "🔎",
+    icon: Search,
+    tone: "accent" as const,
     title: "Aparecé en Google",
     text: "Estructura preparada para buscadores para que Google pueda entender mejor tu sitio.",
     example: "Hotel Costa Serena",
+    target: "proyecto-costa-serena",
   },
 ];
 
@@ -296,6 +349,29 @@ function LaptopMockup({
   label: string;
   fit?: "cover" | "contain" | undefined;
 }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [active, setActive] = useState(false);
+
+  useEffect(() => {
+    const el = videoRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActive(true);
+            void el.play().catch(() => undefined);
+          } else {
+            el.pause();
+          }
+        });
+      },
+      { threshold: 0.35 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   return (
     <div className="w-full">
       <div className="rounded-t-xl border border-border bg-ink p-2 pb-0 sm:p-3 sm:pb-0">
@@ -306,12 +382,12 @@ function LaptopMockup({
         </div>
         <div className="grid aspect-[16/10] w-full place-items-center overflow-hidden rounded-t-md bg-secondary">
           <video
-            src={src}
-            autoPlay
+            ref={videoRef}
+            {...(active ? { src } : {})}
             loop
             muted
             playsInline
-            preload="metadata"
+            preload="none"
             aria-label={`Demo del sitio ${label}`}
             className={`h-full w-full ${fit === "contain" ? "object-contain" : "object-cover"}`}
           />
@@ -325,6 +401,7 @@ function LaptopMockup({
 function Index() {
   const [scrolled, setScrolled] = useState(false);
   const [plan, setPlan] = useState("");
+  const [waFallback, setWaFallback] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -470,14 +547,23 @@ function Index() {
             {BENEFITS.map((b, i) => (
               <Reveal key={b.title} delay={i * 80} className="h-full">
                 <div className="flex h-full flex-col rounded-2xl border border-border bg-card p-6 shadow-soft transition-shadow duration-300 hover:shadow-lift">
-                  <div className="grid h-11 w-11 place-items-center rounded-xl bg-secondary text-lg">
-                    <span aria-hidden>{b.emoji}</span>
+                  <div
+                    className={`grid h-11 w-11 place-items-center rounded-xl ${
+                      b.tone === "accent" ? "bg-accent/12" : "bg-primary/12"
+                    }`}
+                  >
+                    <b.icon
+                      className={`h-5 w-5 ${b.tone === "accent" ? "text-accent" : "text-primary"}`}
+                      aria-hidden="true"
+                    />
                   </div>
                   <h3 className="mt-4 text-base font-bold">{b.title}</h3>
                   <p className="mt-2 flex-1 text-sm text-muted-foreground">{b.text}</p>
                   <a
-                    href="#proyectos"
-                    className="mt-4 inline-flex w-fit items-center gap-1 text-sm font-semibold text-primary transition-colors hover:text-accent"
+                    href={`#${b.target}`}
+                    className={`mt-4 inline-flex w-fit items-center gap-1 text-sm font-semibold transition-colors hover:opacity-80 ${
+                      b.tone === "accent" ? "text-accent" : "text-primary"
+                    }`}
                   >
                     Ver ejemplo: {b.example} <ArrowUpRight className="h-3.5 w-3.5" />
                   </a>
@@ -503,7 +589,10 @@ function Index() {
           <div className="mt-12 grid items-stretch gap-6 lg:grid-cols-3">
             {PROJECTS.map((p, i) => (
               <Reveal key={p.name} delay={i * 110} className="h-full">
-                <article className="flex h-full flex-col rounded-2xl border border-border bg-card p-5 shadow-soft transition-shadow duration-300 hover:shadow-lift">
+                <article
+                  id={p.id}
+                  className="flex h-full scroll-mt-24 flex-col rounded-2xl border border-border bg-card p-5 shadow-soft transition-shadow duration-300 hover:shadow-lift sm:scroll-mt-28"
+                >
                   <span className="mb-4 inline-flex w-fit items-center rounded-full bg-secondary px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                     Proyecto conceptual — no afiliado
                   </span>
@@ -670,15 +759,28 @@ function Index() {
           <Reveal delay={100}>
             <form
               ref={formRef}
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault();
                 const formData = new FormData(e.currentTarget);
                 const nombre = String(formData.get("nombre") ?? "").trim();
                 const contacto = String(formData.get("contacto") ?? "").trim();
-                const plan = String(formData.get("plan") ?? "").trim();
+                const planSel = String(formData.get("plan") ?? "").trim();
                 const mensaje = String(formData.get("mensaje") ?? "").trim();
-                const text = `Hola, quiero más información sobre los planes de Valcora Studio.\nNombre: ${nombre}\nContacto: ${contacto}\nPlan de interés: ${plan || "No especificado"}\nMensaje: ${mensaje}`;
-                window.open(`https://wa.me/59894233657?text=${encodeURIComponent(text)}`, "_blank");
+                const text = `Hola, quiero más información sobre los planes de Valcora Studio.\nNombre: ${nombre}\nContacto: ${contacto}\nPlan de interés: ${planSel || "No especificado"}\nMensaje: ${mensaje}`;
+                const url = `https://wa.me/59894233657?text=${encodeURIComponent(text)}`;
+
+                // Respaldo: guardamos el lead antes de intentar abrir WhatsApp.
+                void saveLead({
+                  data: { nombre, contacto, plan: planSel, mensaje },
+                }).catch(() => undefined);
+
+                const win = window.open(url, "_blank");
+                if (!win || win.closed || typeof win.closed === "undefined") {
+                  setWaFallback(url);
+                  toast.error("No pudimos abrir WhatsApp. Usá el enlace que aparece abajo del formulario.");
+                  return;
+                }
+                setWaFallback(null);
                 toast.success("¡Consulta enviada! Te respondemos a la brevedad.");
                 formRef.current?.reset();
                 setPlan("");
@@ -741,6 +843,34 @@ function Index() {
               </button>
             </form>
           </Reveal>
+
+          {waFallback && (
+            <div
+              role="alert"
+              className="mt-4 rounded-2xl border border-destructive/40 bg-card p-5 text-sm shadow-soft"
+            >
+              <p className="font-semibold text-destructive">No pudimos abrir WhatsApp automáticamente</p>
+              <p className="mt-1 text-muted-foreground">
+                Probablemente tu navegador bloqueó la ventana emergente. Tocá el botón de abajo para
+                enviarnos tu consulta, o escribinos al{" "}
+                <span className="font-semibold text-foreground">+598 94 233 657</span>.
+              </p>
+              <a
+                href={waFallback}
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => {
+                  toast.success("¡Consulta enviada! Te respondemos a la brevedad.");
+                  setWaFallback(null);
+                  formRef.current?.reset();
+                  setPlan("");
+                }}
+                className="mt-4 inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-semibold text-background transition-transform hover:-translate-y-0.5"
+              >
+                <MessageCircle className="h-4 w-4" /> Abrir WhatsApp con mi consulta
+              </a>
+            </div>
+          )}
 
           <Reveal delay={160}>
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
