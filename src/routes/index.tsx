@@ -351,7 +351,6 @@ function LaptopMockup({
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [active, setActive] = useState(false);
-  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const el = videoRef.current;
@@ -361,7 +360,6 @@ function LaptopMockup({
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             setActive(true);
-            void el.play().catch(() => undefined);
           } else {
             el.pause();
           }
@@ -376,6 +374,17 @@ function LaptopMockup({
     return () => io.disconnect();
   }, []);
 
+  // Separado del observer a propósito: play() acá corre DESPUÉS de que React
+  // ya confirmó el atributo src en el DOM (por el cambio de `active` como
+  // dependencia). Llamarlo en el mismo tick que setActive() es una carrera:
+  // el video todavía no tiene src en ese momento y el play() falla en silencio.
+  useEffect(() => {
+    if (!active) return;
+    const el = videoRef.current;
+    if (!el) return;
+    void el.play().catch(() => undefined);
+  }, [active]);
+
   return (
     <div className="w-full">
       <div className="rounded-t-xl border border-border bg-ink p-2 pb-0 sm:p-3 sm:pb-0">
@@ -385,12 +394,10 @@ function LaptopMockup({
           <span className="h-2 w-2 rounded-full bg-sand/25" />
         </div>
         <div className="relative grid aspect-[16/10] w-full place-items-center overflow-hidden rounded-t-md bg-secondary">
-          {!ready && (
-            <div
-              className="absolute inset-0 animate-pulse bg-gradient-to-br from-secondary via-border/40 to-secondary"
-              aria-hidden="true"
-            />
-          )}
+          <div
+            className="absolute inset-0 animate-pulse bg-gradient-to-br from-secondary via-border/40 to-secondary"
+            aria-hidden="true"
+          />
           <video
             ref={videoRef}
             {...(active ? { src } : {})}
@@ -398,9 +405,8 @@ function LaptopMockup({
             muted
             playsInline
             preload="none"
-            onLoadedData={() => setReady(true)}
             aria-label={`Demo del sitio ${label}`}
-            className={`relative h-full w-full transition-opacity duration-300 ${ready ? "opacity-100" : "opacity-0"} ${fit === "contain" ? "object-contain" : "object-cover"}`}
+            className={`relative h-full w-full ${fit === "contain" ? "object-contain" : "object-cover"}`}
           />
         </div>
       </div>
