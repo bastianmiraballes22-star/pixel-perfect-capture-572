@@ -351,6 +351,7 @@ function LaptopMockup({
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [active, setActive] = useState(false);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const el = videoRef.current;
@@ -366,7 +367,10 @@ function LaptopMockup({
           }
         });
       },
-      { threshold: 0.35 },
+      // rootMargin amplio: arranca a cargar el video mientras todavía está
+      // a ~600px de entrar en pantalla, no cuando ya está siendo visto.
+      // Le da tiempo de sobra a bufferear en 4G antes de que el usuario llegue.
+      { threshold: 0, rootMargin: "600px 0px 600px 0px" },
     );
     io.observe(el);
     return () => io.disconnect();
@@ -380,7 +384,13 @@ function LaptopMockup({
           <span className="h-2 w-2 rounded-full bg-sand/40" />
           <span className="h-2 w-2 rounded-full bg-sand/25" />
         </div>
-        <div className="grid aspect-[16/10] w-full place-items-center overflow-hidden rounded-t-md bg-secondary">
+        <div className="relative grid aspect-[16/10] w-full place-items-center overflow-hidden rounded-t-md bg-secondary">
+          {!ready && (
+            <div
+              className="absolute inset-0 animate-pulse bg-gradient-to-br from-secondary via-border/40 to-secondary"
+              aria-hidden="true"
+            />
+          )}
           <video
             ref={videoRef}
             {...(active ? { src } : {})}
@@ -388,8 +398,9 @@ function LaptopMockup({
             muted
             playsInline
             preload="none"
+            onLoadedData={() => setReady(true)}
             aria-label={`Demo del sitio ${label}`}
-            className={`h-full w-full ${fit === "contain" ? "object-contain" : "object-cover"}`}
+            className={`relative h-full w-full transition-opacity duration-300 ${ready ? "opacity-100" : "opacity-0"} ${fit === "contain" ? "object-contain" : "object-cover"}`}
           />
         </div>
       </div>
